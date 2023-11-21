@@ -16,7 +16,9 @@ app.use('/js', express.static(__dirname + '/js'));
 app.use(express.text({ type: 'application/xml' }));
 app.use(express.json());
 
-
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
 // GET-Route für die Startseite
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
