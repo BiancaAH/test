@@ -112,7 +112,7 @@ function searchTyres() {
                 //Kontrolliert ob die ID eindeutig ist
                 if (regex.test(herstellernummer)) {
                     // Kalkuliert den VK basierend auf EK
-                    const verkaufspreis = calculateVerkaufspreis(nettopreis);
+                    const verkaufspreis = calculateVerkaufspreisTyres(nettopreis);
 
                     // erstellt einen Container für jeden Artikel
                     const articleContainer = document.createElement('div');
@@ -157,6 +157,10 @@ function calculateVerkaufspreis(nettopreis) {
     }
 
     return parseFloat(verkaufspreis.toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben
+}
+
+function calculateVerkaufspreisTyres(nettopreis) {
+    return parseFloat((nettopreis * 1.2).toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben
 }
 
 function clearSearchResults() {
