@@ -54,7 +54,7 @@ function searchArticle() {
                         <p><strong>Hersteller:</strong> ${hersteller}</p>
                         <p><strong>Beschreibung:</strong> ${beschreibung}</p>
                         <p><strong>Nettopreis:</strong> ${nettopreis.toFixed(2)} €</p>
-                        <p><strong>Verkaufspreis:</strong> ${verkaufspreis.toFixed(2)} €</p>
+                        <p><strong>Verkaufspreis netto:</strong> ${verkaufspreis.toFixed(2)} €</p>
                     `;
 
                     // Füge den Artikelcontainer zum Hauptcontainer hinzu
