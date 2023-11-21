@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kunden verwalten - KFZ-Werkstatt Warenwirtschaftssystem</title>
     <link rel="stylesheet" href="styles.css">
-
 </head>
 
 <header>
@@ -15,7 +14,6 @@
 <nav>
     <ul>
         <li><a href="../index.html">Startseite</a></li>
-
     </ul>
 </nav>
 
@@ -27,15 +25,22 @@
     <button id="clearButton" onclick="clearSearchResults()" type="button">Suche löschen</button>
 </div>
 <div style="border: solid black 1px; min-height: 100px; padding: 10px; margin-top: 10px;">
-
-        <div id="articleInfoContainer">
-
-        </div>
-
-
+    <div id="articleInfoContainer">
+    </div>
 </div>
+
+<!-- Neues Suchfeld für Reifen -->
+<div>
+    <label for="tyreSearchInput">Reifen suchen:</label>
+    <input type="text" id="tyreSearchInput" placeholder="Reifen suchen">
+    <button id="tyreSearchButton" onclick="searchTyres()" type="button">Reifen suchen</button>
+    <button id="tyreClearButton" onclick="clearTyreSearchResults()" type="button">Suche löschen</button>
+</div>
+<div style="border: solid black 1px; min-height: 100px; padding: 10px; margin-top: 10px;">
+    <div id="tyreInfoContainer">
+    </div>
+</div>
+
 <script src="../js/api_script.js"></script>
-
 </body>
-
 </html>
