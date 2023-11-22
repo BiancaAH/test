@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verkaufspreisrechner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<header>
+  <h1>VK-Rechner</h1>
+</header>
+
+
+<nav>
+  <ul>
+    <li><a href="../index.html">Startseite</a></li>
+    <li><a href="/vk.html">VK-Rechner</a></li>
+    <li><a href="/tyre.html">Reifen</a></li>
+  </ul>
+</nav>
+<br> <br>
+
+<body>
+<h1>Verkaufspreisrechner</h1>
+
+<div>
+  <label for="nettoeinkaufspreisInput">Nettoeinkaufspreis eingeben (in Euro):</label>
+  <input type="number" id="nettoeinkaufspreisInput" placeholder="Nettoeinkaufspreis">
+  <button id="calculateButton" onclick="calculateSalesPrice()" type="button">Verkaufspreis berechnen</button>
+</div>
+
+<div>
+  <p><strong>Verkaufspreis:</strong> <span id="verkaufspreisOutput">0.00</span> Euro</p>
+</div>
+<script src="../js/api_script.js"></script>
+</body>
+</html>

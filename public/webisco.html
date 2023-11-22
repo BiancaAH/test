@@ -14,9 +14,11 @@
 <nav>
     <ul>
         <li><a href="../index.html">Startseite</a></li>
+        <li><a href="/vk.html">VK-Rechner</a></li>
+        <li><a href="/tyre.html">Reifen</a></li>
     </ul>
 </nav>
-
+<br> <br>
 <body>
 <div>
     <label for="articleNumberInput">Artikelnummer eingeben:</label>
@@ -29,18 +31,9 @@
     </div>
 </div>
 
-<!-- Neues Suchfeld für Reifen -->
-<div>
-    <label for="tyreSearchInput">Reifen suchen:</label>
-    <input type="text" id="tyreSearchInput" placeholder="Reifen suchen">
-    <button id="tyreSearchButton" onclick="searchTyres()" type="button">Reifen suchen</button>
-    <button id="tyreClearButton" onclick="clearTyreSearchResults()" type="button">Suche löschen</button>
-</div>
-<div style="border: solid black 1px; min-height: 100px; padding: 10px; margin-top: 10px;">
-    <div id="tyreInfoContainer">
-    </div>
-</div>
 
+
+<hr>
 <script src="../js/api_script.js"></script>
 </body>
 </html>

@@ -64,44 +64,10 @@ function searchArticle() {
         });
 }
 
-function calculateSalesPrice() {
-    const nettoeinkaufspreisInput = document.getElementById("nettoeinkaufspreisInput");
-    const verkaufspreisOutput = document.getElementById("verkaufspreisOutput");
-
-    // Eingegebenen Nettoeinkaufspreis abrufen
-    const nettoeinkaufspreis = parseFloat(nettoeinkaufspreisInput.value);
-
-    // Verkaufspreis berechnen
-    const verkaufspreis = calculateVerkaufspreis(nettoeinkaufspreis);
-
-    // Verkaufspreis im HTML anzeigen
-    verkaufspreisOutput.textContent = verkaufspreis.toFixed(2);
-}
-
 
 
 function calculateVerkaufspreis(nettopreis) {
-    let verkaufspreis;
-
-    if (nettopreis < 10) {
-        verkaufspreis = nettopreis * 2;
-    } else if (nettopreis >= 10 && nettopreis < 100) {
-        verkaufspreis = nettopreis * 1.8;
-    } else if (nettopreis >= 100 && nettopreis < 250) {
-        verkaufspreis = nettopreis * 1.7;
-    } else if (nettopreis >= 250 && nettopreis < 500) {
-        verkaufspreis = nettopreis * 1.6;
-    } else if (nettopreis >= 500 && nettopreis < 800) {
-        verkaufspreis = nettopreis * 1.5;
-    } else {
-        verkaufspreis = nettopreis * 1.4;
-    }
-
-    return parseFloat(verkaufspreis.toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben
-}
-
-function calculateVerkaufspreisTyres(nettopreis) {
-    return parseFloat((nettopreis * 1.2).toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben
+    return parseFloat((nettopreis * 1.18).toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben
 }
 
 function clearSearchResults() {

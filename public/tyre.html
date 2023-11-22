@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kunden verwalten - KFZ-Werkstatt Warenwirtschaftssystem</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<header>
+  <h1>Reifenrechner</h1>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="../index.html">Startseite</a></li>
+    <li><a href="/vk.html">VK-Rechner</a></li>
+    <li><a href="/tyre.html">Reifen</a></li>
+  </ul>
+</nav>
+
+<body>
+
+<h1>Reifenrechner</h1>
+<div>
+  <label for="articleNumberInput">Artikelnummer eingeben:</label>
+  <input type="text" id="articleNumberInput" placeholder="Artikelnummer">
+  <button id="searchButton" onclick="searchArticle()" type="button">Artikel suchen</button>
+  <button id="clearButton" onclick="clearSearchResults()" type="button">Suche löschen</button>
+</div>
+<div style="border: solid black 1px; min-height: 100px; padding: 10px; margin-top: 10px;">
+  <div id="articleInfoContainer">
+  </div>
+</div>
+
+
+
+<hr>
+<script src="../js/tyre_script.js"></script>
+</body>
+</html>

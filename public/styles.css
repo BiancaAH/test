@@ -81,4 +81,115 @@ body {
     text-align: justify;
 }
 
+/* Allgemeine Styles */
+body {
+    font-family: "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+header, footer { /* Header- und Footer-Stil hinzufügen */
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    width: 100%;
+}
+
+header img {
+    max-width: 200px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#content {
+    width: 80%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.column {
+    width: 100%;
+    text-align: justify;
+    padding: 0 10px;
+}
+
+.column h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.column p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: justify; /* Text im Blocksatz ausgerichtet */
+}
+
+.column strong {
+    font-weight: bold;
+}
+
+/* CSS für die Bilder */
+.inline-image {
+    max-width: 150px; /* Maximale Breite für Bilder festlegen */
+    height: auto; /* Automatische Anpassung der Höhe */
+    float: left; /* Bild links neben dem Text positionieren */
+    margin-right: 10px; /* Einen kleinen Abstand zwischen dem Bild und dem Text hinzufügen */
+}
+
+/* Media Query für mobile Geräte */
+@media (max-width: 768px) {
+    header img {
+        max-width: 150px; /* Anpassen der Logo-Größe */
+    }
+
+    header h1 {
+        font-size: 20px; /* Anpassen der Überschriften-Größe */
+    }
+}
+
+/* Reduzieren Sie die Breite des Body-Bereichs */
+body {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: justify;
+}
+
 /* ... Ihr weiterer CSS-Code ... */
+
+/* Navigationsleiste */
+nav {
+    background-color: #333; /* Hintergrundfarbe der Navigationsleiste */
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Zeige die Liste als flexibles Layout */
+    justify-content: center; /* Zentriere die Elemente horizontal */
+}
+
+nav li {
+    margin: 0 10px; /* Abstand zwischen den Navigationspunkten */
+}
+
+nav a {
+    text-decoration: none;
+    color: #fff; /* Textfarbe der Navigationslinks */
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #FF5733; /* Ändere die Farbe bei Hover nach deinen Wünschen */
+}
