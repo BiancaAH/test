@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Wechselgeldrechner</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function berechneWechselgeld() {
+            var muenzenUndScheine = [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01];
+            var bezahlt = parseFloat(document.getElementById('bezahlt').value);
+            var rechnungsbetrag = parseFloat(document.getElementById('rechnungsbetrag').value);
+            var wechselgeld = bezahlt - rechnungsbetrag;
+            var ausgabe = 'Wechselgeld: ' + wechselgeld.toFixed(2) + '€<br>';
+
+            for (var i = 0; i < muenzenUndScheine.length; i++) {
+                var muenzeOderSchein = muenzenUndScheine[i];
+                var anzahl = Math.floor(wechselgeld / muenzeOderSchein);
+                if (anzahl > 0) {
+                    wechselgeld -= anzahl * muenzeOderSchein;
+                    if (muenzeOderSchein < 1) {
+                        ausgabe += anzahl + ' x ' + (muenzeOderSchein * 100).toFixed(0) + ' Cent<br>';
+                    } else {
+                        ausgabe += anzahl + ' x ' + muenzeOderSchein.toFixed(2) + '€ <br>';
+                    }
+                }
+            }
+
+            document.getElementById('ergebnis').innerHTML = ausgabe;
+        }
+    </script>
+</head>
+<nav>
+    <ul>
+        <li><a href="../index.html">Startseite</a></li>
+        <li><a href="../webisco.html">Artikelrechner</a></li>
+        <li><a href="/vk.html">VK-Rechner</a></li>
+        <li><a href="/tyre.html">Reifen</a></li>
+        <li><a href="/wechselgeld.html">Wechselgeldrechner</a></li>
+    </ul>
+</nav>
+<br> <br>
+<br> <br>
+<body>
+<div class="container" style="max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <h2>Wechselgeldrechner</h2>
+    <label for="rechnungsbetrag" style="display: block; margin-bottom: 10px;">Rechnungsbetrag (€):</label>
+    <input type="number" id="rechnungsbetrag" step="0.01" style="display: block; width: 100%; margin-bottom: 10px;"><br>
+
+    <label for="bezahlt" style="display: block; margin-bottom: 10px;">Bezahlt (€):</label>
+    <input type="number" id="bezahlt" step="0.01" style="display: block; width: 100%; margin-bottom: 10px;"><br>
+
+    <button onclick="berechneWechselgeld()" style="display: block; width: 100%; cursor: pointer;">Berechne Wechselgeld</button>
+    <div id="ergebnis" style="margin-top: 20px; padding: 10px; background-color: #f8f8f8; border: 1px solid #eee; border-radius: 5px;"></div>
+</div>
+</body>
+</html>
