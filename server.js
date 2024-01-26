@@ -137,7 +137,7 @@ app.post('/todos', async (req, res) => {
         await schreibeTodos(todos);
 
         // Führe Git-Commit und Push zum GitHub-Repository aus
-        exec(`git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push https://${githubToken}@github.com/BiancaAH/test.git`, (error, stdout, stderr) => {
+        exec(`git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push ${githubRepoURL}`, (error, stdout, stderr) => {
             if (error) {
                 console.error('Fehler beim Git-Commit und Push:', error);
                 res.status(500).send('Fehler beim Git-Commit und Push');
