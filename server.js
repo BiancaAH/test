@@ -154,7 +154,6 @@ app.delete('/todos/:id', async (req, res) => {
     }
 });
 
-
 // Fallback-Route (Standardroute) für nicht definierte Pfade
 app.get('*', (req, res) => {
     res.sendFile(__dirname + '/index.html');
