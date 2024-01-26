@@ -1,47 +1,36 @@
-// In Ihrer Frontend-JavaScript-Datei können Sie den Token abrufen, indem Sie eine Anfrage an Ihren Server stellen
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('/github-token') // Hier wird eine neue Route verwendet, um den Token abzurufen
-        .then(response => response.json())
-        .then(data => {
-            const githubToken = data.githubToken;
-            // Verwenden Sie den Token hier in Ihren Anfragen an GitHub
-        })
-        .catch(error => {
-            console.error('Fehler beim Abrufen des GitHub-Tokens:', error);
-        });
-
     todosLaden();
 });
 
-// ...
-
+function handleErrors(response) {
+    if (!response.ok) {
+        throw new Error('Netzwerkantwort war nicht ok: ' + response.statusText);
+    }
+    return response;
+}
 
 function todosLaden() {
     fetch('/todos')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Netzwerkantwort war nicht ok: ' + response.statusText);
-            }
-            return response.json();
-        })
+        .then(handleErrors)
+        .then(response => response.json())
         .then(todos => {
             const tabelle = document.querySelector('#todoListe tbody');
-            tabelle.innerHTML = ''; // Tabelle leeren
+            tabelle.innerHTML = '';
             todos.forEach(todo => {
                 const tr = document.createElement('tr');
 
-                // Text-Spalte hinzufügen
                 const textTd = document.createElement('td');
-                textTd.textContent = todo.text; // Stellen Sie sicher, dass 'text' das richtige Attribut ist
+                textTd.textContent = todo.text;
                 tr.appendChild(textTd);
 
-                // Löschen-Button-Spalte hinzufügen
                 const loeschTd = document.createElement('td');
                 const loeschButton = document.createElement('button');
                 loeschButton.textContent = 'Löschen';
-                loeschButton.onclick = () => todoLoeschen(todo.id); // Verwendung von 'id' für das Löschen
+                loeschButton.addEventListener('click', () => todoLoeschen(todo._id));
                 loeschTd.appendChild(loeschButton);
                 tr.appendChild(loeschTd);
+
+                tr.id = todo._id;
 
                 tabelle.appendChild(tr);
             });
@@ -53,7 +42,6 @@ function todosLaden() {
         });
 }
 
-
 function neueAufgabeHinzufuegen() {
     const aufgabeText = document.getElementById('neueAufgabe').value;
     fetch('/todos', {
@@ -61,15 +49,12 @@ function neueAufgabeHinzufuegen() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: aufgabeText }) // Stellen Sie sicher, dass 'text' das richtige Attribut ist
+        body: JSON.stringify({ text: aufgabeText })
     })
-    .then(response => {
-        if (response.ok) {
-            todosLaden(); // Die Liste neu laden, um das neue To-Do anzuzeigen
-            document.getElementById('neueAufgabe').value = ''; // Eingabefeld leeren
-        } else {
-            throw new Error('Fehler beim Hinzufügen des To-Dos: ' + response.statusText);
-        }
+    .then(handleErrors)
+    .then(() => {
+        todosLaden();
+        document.getElementById('neueAufgabe').value = '';
     })
     .catch(error => {
         console.error(error);
@@ -79,25 +64,23 @@ function neueAufgabeHinzufuegen() {
 }
 
 function todoLoeschen(todoId) {
-    fetch(`/todos/${todoId}`, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (response.ok) {
-            // Das To-Do-Element aus der Anzeige entfernen
+    if (todoId) {
+        fetch(`/todos/${todoId}`, {
+            method: 'DELETE'
+        })
+        .then(handleErrors)
+        .then(() => {
             const todoElement = document.getElementById(todoId);
             if (todoElement) {
                 todoElement.remove();
             }
-            // Die Liste neu laden, um das gelöschte To-Do zu entfernen
             todosLaden();
-        } else {
-            throw new Error('Fehler beim Löschen des To-Dos: ' + response.statusText);
-        }
-    })
-    .catch(error => {
-        console.error(error);
-        alert('Fehler beim Löschen des To-Dos: ' + error.message); // Zeigt den Fehler dem Benutzer an
-    });
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Fehler beim Löschen des To-Dos: ' + error.message);
+        });
+    } else {
+        console.error('Ungültige ID für das zu löschende To-Do.');
+    }
 }
-

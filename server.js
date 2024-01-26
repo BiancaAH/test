@@ -1,46 +1,60 @@
-// Importieren notwendiger Module
 const express = require('express');
-const app = express();
-const port = 8080;
 const https = require('https');
 const cors = require('cors');
 const axios = require('axios');
-const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To-Do-Liste
-const ARTIKEL_FALSE = 'F'; // Definition der Konstante
+const fs = require('fs');
+const { MongoClient } = require('mongodb');
+
+const app = express();
+const port = 8080;
+
+const ARTIKEL_FALSE = 'F';
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
 
 app.use(cors());
-app.use(express.static('public')); // Statisches Hosting für das 'public'-Verzeichnis
+app.use(express.static('public'));
 app.use('/js', express.static(__dirname + '/js'));
 app.use(express.json());
 
+// MongoDB-Verbindung herstellen
+const mongoURI =
+  'mongodb+srv://doadmin:b0X1q9G7345tZ2rV@db-mongodb-nyc3-48965-d36c7ff1.mongo.ondigitalocean.com/admin?tls=true&authSource=admin';
+
+async function connectToMongoDB() {
+  try {
+    const client = await MongoClient.connect(mongoURI);
+    console.log('MongoDB verbunden');
+    return client;
+  } catch (err) {
+    console.error('Fehler beim Verbinden mit MongoDB:', err);
+    throw err;
+  }
+}
+
+
 // GET-Route für die Startseite
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
 // GET-Route für die Anmeldeseite
 app.get('/anmelden', (req, res) => {
-    res.sendFile(__dirname + '/public/anmelden.html');
+  res.sendFile(__dirname + '/public/anmelden.html');
 });
 
 // GET-Route für Artikelabfragen
 app.get('/article/:artNr', async (req, res) => {
-    // Extrahiert die Artikelnummer aus der URL
-    const artikelnummer = req.params.artNr || 'VKBA3236';
-    const apiUrl = 'https://webisco.dandler.eu:9229/artikelanfrage';
+  const artikelnummer = req.params.artNr || 'VKBA3236';
+  const apiUrl = 'https://webisco.dandler.eu:9229/artikelanfrage';
 
-    // Konfiguration für HTTPS-Anfragen, um unsichere Zertifikate zu akzeptieren
-    const agent = new https.Agent({
-        rejectUnauthorized: false
-    });
+  const agent = new https.Agent({
+    rejectUnauthorized: false,
+  });
 
-    // Anmeldeinformationen
-    const username = '3319';
-    const password = '123456789';
+  const username = '3319';
+  const password = '123456789';
 
-    // Erstellt eine XML-Anfrage für die Webisco API
-    const xmlRequest = `
+  const xmlRequest = `
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <webisco type="request" version="46" username="${username}" password="${password}">
         <content>
@@ -63,103 +77,91 @@ app.get('/article/:artNr', async (req, res) => {
     </webisco>
     `;
 
-    try {
-        // Sendet die XML-Anfrage an die API und empfängt die Antwort
-        const result = await axios.post(apiUrl, xmlRequest, {
-            headers: {
-                'Accept': 'application/xml',
-                'Content-Type': 'application/xml',
-                'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
-            },
-            httpsAgent: agent
-        });
+  try {
+    const result = await axios.post(apiUrl, xmlRequest, {
+      headers: {
+        'Accept': 'application/xml',
+        'Content-Type': 'application/xml',
+        'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+      },
+      httpsAgent: agent,
+    });
 
-        // Loggt die Antwort und sendet sie zurück
-        console.log(result.data);
-        res.send(result.data || '');
-    } catch (error) {
-        // Fehlerbehandlung, wenn die Anfrage fehlschlägt
-        console.error(error);
-        res.status(500).send(error.message);
-    }
+    console.log(result.data);
+    res.send(result.data || '');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error.message);
+  }
 });
 
 // To-Do-Liste Routen
-const TODOS_FILE = 'js/todos.json';
 
-// Hilfsfunktion zum Lesen der To-Dos aus der JSON-Datei
-function leseTodos() {
-    return new Promise((resolve, reject) => {
-        fs.readFile(TODOS_FILE, (err, data) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(JSON.parse(data));
-        });
-    });
-}
-
-// Hilfsfunktion zum Schreiben der To-Dos in die JSON-Datei
-function schreibeTodos(todos) {
-    return new Promise((resolve, reject) => {
-        fs.writeFile(TODOS_FILE, JSON.stringify(todos), (err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
-        });
-    });
-}
-
-// Route zum Abrufen aller To-Dos
+// Route zum Abrufen aller To-Dos aus der MongoDB
 app.get('/todos', async (req, res) => {
-    try {
-        const todos = await leseTodos();
-        res.json(todos);
-    } catch (err) {
-        console.error('Fehler beim Lesen der To-Dos:', err);
-        res.status(500).json({ error: 'Fehler beim Lesen der To-Dos' });
-    }
+  try {
+    const client = await connectToMongoDB();
+    const db = client.db('Zahlungsvereinbarungen');
+    const collection = db.collection('DB');
+    const todos = await collection.find({}).toArray();
+    res.json(todos);
+    await client.close();
+  } catch (err) {
+    console.error('Fehler beim Lesen der To-Dos aus der MongoDB:', err);
+    res.status(500).json({ error: 'Fehler beim Lesen der To-Dos' });
+  }
 });
 
-// Route zum Hinzufügen eines neuen To-Dos
+// Route zum Hinzufügen eines neuen To-Dos in die MongoDB
 app.post('/todos', async (req, res) => {
-    try {
-        const todos = await leseTodos();
-        const newTodo = { id: todos.length, text: req.body.text }; // Füge eine eindeutige ID hinzu
-        todos.push(newTodo);
-        await schreibeTodos(todos);
-        res.status(201).send('To-Do hinzugefügt');
-    } catch (err) {
-        res.status(500).send('Fehler beim Hinzufügen des To-Dos');
-    }
+  const aufgabeText = req.body.text;
+  try {
+    const client = await connectToMongoDB();
+    const db = client.db('Zahlungsvereinbarungen');
+    const collection = db.collection('DB');
+    await collection.insertOne({ text: aufgabeText });
+    res.status(201).send('To-Do hinzugefügt');
+    await client.close();
+  } catch (err) {
+    console.error('Fehler beim Hinzufügen des To-Dos in die MongoDB:', err);
+    res.status(500).send('Fehler beim Hinzufügen des To-Dos');
+  }
 });
 
-// Route zum Löschen eines To-Dos anhand seiner ID
+// Route zum Löschen eines To-Dos aus der MongoDB anhand seiner ID
 app.delete('/todos/:id', async (req, res) => {
-    try {
-        const todos = await leseTodos();
-        const idToDelete = parseInt(req.params.id);
-        if (!isNaN(idToDelete)) {
-            const updatedTodos = todos.filter(todo => todo.id !== idToDelete);
-            await schreibeTodos(updatedTodos);
-            res.send('To-Do gelöscht');
-        } else {
-            res.status(400).send('Ungültige ID');
-        }
-    } catch (err) {
-        res.status(500).send('Fehler beim Löschen des To-Dos');
+  const todoId = req.params.id;
+  try {
+    const client = await connectToMongoDB();
+    const db = client.db('Zahlungsvereinbarungen');
+    const collection = db.collection('DB');
+
+    // Require the ObjectId class and create a new ObjectId
+    const { ObjectId } = require('mongodb');
+    const objectId = new ObjectId(todoId);
+
+    const result = await collection.deleteOne({ _id: objectId });
+
+    if (result.deletedCount === 1) {
+      res.send('To-Do gelöscht');
+    } else {
+      res.status(404).send('To-Do nicht gefunden');
     }
+
+    await client.close();
+  } catch (err) {
+    console.error('Fehler beim Löschen des To-Dos aus der MongoDB:', err);
+    res.status(500).send('Fehler beim Löschen des To-Dos: ' + err.message);
+  }
 });
 
-// Fallback-Route (Standardroute) für nicht definierte Pfade
+
+
+
 app.get('*', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
-// Starten des Servers
 app.listen(port, () => {
-    console.log(`Server läuft auf Port ${port}`);
+  console.log(`Server läuft auf Port ${port}`);
 });
