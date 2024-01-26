@@ -24,15 +24,29 @@
 </nav>
 
 <main>
-  <h2>Meine To-Do-Liste</h2>
-  <input type="text" id="neueAufgabe" placeholder="Zahlungsvereinbarung...">
+  <h2 style="font-size: 24px;">Meine To-Do-Liste</h2>
+  <input type="text" id="neueAufgabe" placeholder="Zahlungsvereinbarung..." style="margin-bottom: 10px;">
   <button onclick="neueAufgabeHinzufuegen()">Hinzufügen</button>
-  <ul id="todoListe">
+  <table id="todoListe" style="width: 80%; margin-top: 20px;">
+    <thead>
+    <tr>
+      <th>To-Do</th>
+      <th>Löschen</th>
+    </tr>
+    </thead>
+    <tbody>
     <!-- Hier werden die To-Do-Liste-Punkte angezeigt -->
-  </ul>
+    <tr>
+      <td>Beispiel-To-Do</td>
+      <td><button>Löschen</button></td>
+    </tr>
+    </tbody>
+  </table>
   <p id="fehlermeldung" style="color: red;"></p>
-
 </main>
+
+
+
 
 <hr>
 <script src="../js/todo_script.js"></script>

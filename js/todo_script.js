@@ -11,19 +11,25 @@ function todosLaden() {
             return response.json();
         })
         .then(todos => {
-            const liste = document.getElementById('todoListe');
-            liste.innerHTML = ''; // Liste leeren
+            const tabelle = document.querySelector('#todoListe tbody');
+            tabelle.innerHTML = ''; // Tabelle leeren
             todos.forEach(todo => {
-                const li = document.createElement('li');
-                li.textContent = todo.text; // Stellen Sie sicher, dass 'text' das richtige Attribut ist
+                const tr = document.createElement('tr');
 
-                // Löschbutton hinzufügen
+                // Text-Spalte hinzufügen
+                const textTd = document.createElement('td');
+                textTd.textContent = todo.text; // Stellen Sie sicher, dass 'text' das richtige Attribut ist
+                tr.appendChild(textTd);
+
+                // Löschen-Button-Spalte hinzufügen
+                const loeschTd = document.createElement('td');
                 const loeschButton = document.createElement('button');
                 loeschButton.textContent = 'Löschen';
                 loeschButton.onclick = () => todoLoeschen(todo.id); // Verwendung von 'id' für das Löschen
-                li.appendChild(loeschButton);
+                loeschTd.appendChild(loeschButton);
+                tr.appendChild(loeschTd);
 
-                liste.appendChild(li);
+                tabelle.appendChild(tr);
             });
         })
         .catch(error => {
@@ -32,6 +38,7 @@ function todosLaden() {
             fehlermeldung.textContent = 'Fehler beim Laden der To-Dos: ' + error.message;
         });
 }
+
 
 function neueAufgabeHinzufuegen() {
     const aufgabeText = document.getElementById('neueAufgabe').value;
@@ -63,14 +70,20 @@ function todoLoeschen(todoId) {
     })
     .then(response => {
         if (response.ok) {
-            todosLaden(); // Die Liste neu laden, um das gelöschte To-Do zu entfernen
+            // Das To-Do-Element aus der Anzeige entfernen
+            const todoElement = document.getElementById(todoId);
+            if (todoElement) {
+                todoElement.remove();
+            }
+            // Die Liste neu laden, um das gelöschte To-Do zu entfernen
+            todosLaden();
         } else {
             throw new Error('Fehler beim Löschen des To-Dos: ' + response.statusText);
         }
     })
     .catch(error => {
         console.error(error);
-        const fehlermeldung = document.getElementById('fehlermeldung');
-        fehlermeldung.textContent = 'Fehler beim Löschen des To-Dos: ' + error.message;
+        alert('Fehler beim Löschen des To-Dos: ' + error.message); // Zeigt den Fehler dem Benutzer an
     });
 }
+

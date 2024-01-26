@@ -172,7 +172,11 @@ body {
     text-align: justify;
 }
 
-/* ... Ihr weiterer CSS-Code ... */
+
+
+nav a:hover {
+    color: #FF5733; /* Ändere die Farbe bei Hover nach deinen Wünschen */
+}
 
 /* Navigationsleiste */
 nav {

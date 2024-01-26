@@ -128,7 +128,8 @@ app.get('/todos', async (req, res) => {
 app.post('/todos', async (req, res) => {
     try {
         const todos = await leseTodos();
-        todos.push(req.body); // req.body enthält das neue To-Do
+        const newTodo = { id: todos.length, text: req.body.text }; // Füge eine eindeutige ID hinzu
+        todos.push(newTodo);
         await schreibeTodos(todos);
         res.status(201).send('To-Do hinzugefügt');
     } catch (err) {
@@ -136,17 +137,23 @@ app.post('/todos', async (req, res) => {
     }
 });
 
-// Route zum Löschen eines To-Dos
+// Route zum Löschen eines To-Dos anhand seiner ID
 app.delete('/todos/:id', async (req, res) => {
     try {
-        let todos = await leseTodos();
-        todos = todos.filter(todo => todo.id !== req.params.id);
-        await schreibeTodos(todos);
-        res.send('To-Do gelöscht');
+        const todos = await leseTodos();
+        const idToDelete = parseInt(req.params.id);
+        if (!isNaN(idToDelete)) {
+            const updatedTodos = todos.filter(todo => todo.id !== idToDelete);
+            await schreibeTodos(updatedTodos);
+            res.send('To-Do gelöscht');
+        } else {
+            res.status(400).send('Ungültige ID');
+        }
     } catch (err) {
         res.status(500).send('Fehler beim Löschen des To-Dos');
     }
 });
+
 
 // Fallback-Route (Standardroute) für nicht definierte Pfade
 app.get('*', (req, res) => {
