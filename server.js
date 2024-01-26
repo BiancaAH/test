@@ -9,6 +9,9 @@ const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
 
+const { exec } = require('child_process');
+
+
 app.use(cors());
 app.use(express.static('public')); // Statisches Hosting für das 'public'-Verzeichnis
 app.use('/js', express.static(__dirname + '/js'));
@@ -131,11 +134,21 @@ app.post('/todos', async (req, res) => {
         const newTodo = { id: todos.length, text: req.body.text }; // Füge eine eindeutige ID hinzu
         todos.push(newTodo);
         await schreibeTodos(todos);
-        res.status(201).send('To-Do hinzugefügt');
+
+        // Führe Git-Commit und Push aus
+        exec('git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push', (error, stdout, stderr) => {
+            if (error) {
+                console.error('Fehler beim Git-Commit und Push:', error);
+                res.status(500).send('Fehler beim Git-Commit und Push');
+            } else {
+                res.status(201).send('To-Do hinzugefügt und Git-Commit und Push erfolgreich');
+            }
+        });
     } catch (err) {
         res.status(500).send('Fehler beim Hinzufügen des To-Dos');
     }
 });
+
 
 // Route zum Löschen eines To-Dos anhand seiner ID
 app.delete('/todos/:id', async (req, res) => {
