@@ -9,7 +9,7 @@ const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
 const githubRepoURL = 'https://github.com/BiancaAH/test.git';
-const githubToken = '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'; // Hier den GitHub-Token einfügen
+const githubToken = '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';  // Hier den GitHub-Token einfügen
 
 
 const { exec } = require('child_process');
