@@ -9,11 +9,9 @@ const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
 const githubRepoURL = 'https://github.com/BiancaAH/test.git';
-const githubToken = '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';  // Hier den GitHub-Token einfügen
-
+const githubToken = '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'; // Hier den GitHub-Token einfügen
 
 const { exec } = require('child_process');
-
 
 app.use(cors());
 app.use(express.static('public')); // Statisches Hosting für das 'public'-Verzeichnis
@@ -119,14 +117,6 @@ function schreibeTodos(todos) {
     });
 }
 
-// Fügen Sie eine neue Route hinzu, um den GitHub-Token abzurufen
-app.get('/github-token', (req, res) => {
-console.log('GitHub-Token:', process.env.GITHUB_TOKEN);
-
-    res.json({ githubToken: process.env.GITHUB_TOKEN });
-});
-
-
 // Route zum Abrufen aller To-Dos
 app.get('/todos', async (req, res) => {
     try {
@@ -153,6 +143,10 @@ app.post('/todos', async (req, res) => {
                 res.status(500).send('Fehler beim Git-Commit und Push');
             } else {
                 res.status(201).send('To-Do hinzugefügt und Git-Commit und Push zum GitHub-Repository erfolgreich');
+                // Seite neu laden
+                setTimeout(() => {
+                    process.exit(0); // Beendet den Server und löst einen Neustart aus (in der Praxis sollte dies durch einen besseren Mechanismus ersetzt werden)
+                }, 1000); // Warten Sie 1 Sekunde, bevor Sie den Server neu starten
             }
         });
     } catch (err) {
@@ -176,7 +170,6 @@ app.delete('/todos/:id', async (req, res) => {
         res.status(500).send('Fehler beim Löschen des To-Dos');
     }
 });
-
 
 // Fallback-Route (Standardroute) für nicht definierte Pfade
 app.get('*', (req, res) => {
