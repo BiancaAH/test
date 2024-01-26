@@ -92,9 +92,9 @@ function calculateVerkaufspreis(nettopreis) {
     } else if (nettopreis >= 250 && nettopreis < 500) {
         verkaufspreis = nettopreis * 1.6;
     } else if (nettopreis >= 500 && nettopreis < 800) {
-        verkaufspreis = nettopreis * 1.5;
-    } else {
         verkaufspreis = nettopreis * 1.4;
+    } else {
+        verkaufspreis = nettopreis * 1.3;
     }
 
     return parseFloat(verkaufspreis.toFixed(2)); // Der Verkaufspreis wird als float-Wert mit zwei Dezimalstellen zurückgegeben

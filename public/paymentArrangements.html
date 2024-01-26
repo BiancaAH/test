@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verkaufspreisrechner</title>
+  <title>Kunden verwalten - KFZ-Werkstatt Warenwirtschaftssystem</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
+<body>
 <header>
-  <h1>VK-Rechner</h1>
+  <h1>Zahlungsvereinbarungen</h1>
 </header>
-
 
 <nav>
   <ul>
@@ -22,20 +22,19 @@
     <li><a href="/paymentArrangements.html">Zahlungsvereinbarungen</a></li>
   </ul>
 </nav>
-<br> <br>
 
-<body>
-<h1>Verkaufspreisrechner</h1>
+<main>
+  <h2>Meine To-Do-Liste</h2>
+  <input type="text" id="neueAufgabe" placeholder="Zahlungsvereinbarung...">
+  <button onclick="neueAufgabeHinzufuegen()">Hinzufügen</button>
+  <ul id="todoListe">
+    <!-- Hier werden die To-Do-Liste-Punkte angezeigt -->
+  </ul>
+  <p id="fehlermeldung" style="color: red;"></p>
 
-<div>
-  <label for="nettoeinkaufspreisInput">Nettoeinkaufspreis eingeben (in Euro):</label>
-  <input type="number" id="nettoeinkaufspreisInput" placeholder="Nettoeinkaufspreis">
-  <button id="calculateButton" onclick="calculateSalesPrice()" type="button">Verkaufspreis berechnen</button>
-</div>
+</main>
 
-<div>
-  <p><strong>Verkaufspreis:</strong> <span id="verkaufspreisOutput">0.00</span> Euro</p>
-</div>
-<script src="../js/api_script.js"></script>
+<hr>
+<script src="../js/todo_script.js"></script>
 </body>
 </html>
