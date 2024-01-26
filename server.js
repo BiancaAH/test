@@ -2,23 +2,32 @@
 const express = require('express');
 const app = express();
 const port = 8080;
+app.use(express.static('public')); // Statisches Hosting für das 'public'-Verzeichnis
 const https = require('https');
 const cors = require('cors');
 const axios = require('axios');
-const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To-Do-Liste
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
-const githubRepoURL = 'https://github.com/BiancaAH/test.git';
-const githubToken = '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'; // Hier den GitHub-Token einfügen
-
-
-const { exec } = require('child_process');
-
 
 app.use(cors());
-app.use(express.static('public')); // Statisches Hosting für das 'public'-Verzeichnis
+
+app.use(cors());
 app.use('/js', express.static(__dirname + '/js'));
+app.use(express.text({ type: 'application/xml' }));
 app.use(express.json());
+
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+// GET-Route für die Startseite
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+app.use(express.text({ type: 'application/xml' }));
+app.use(express.json());
+app.use(express.static('public'));
+
 
 // GET-Route für die Startseite
 app.get('/', (req, res) => {
@@ -90,8 +99,14 @@ app.get('/article/:artNr', async (req, res) => {
     }
 });
 
-// To-Do-Liste Routen
-const TODOS_FILE = 'js/todos.json';
+// Fallback-Route (Standardroute) für nicht definierte Pfade
+app.get('*', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+
+const fs = require('fs');
+const TODOS_FILE = './todos.json';
 
 // Hilfsfunktion zum Lesen der To-Dos aus der JSON-Datei
 function leseTodos() {
@@ -119,22 +134,13 @@ function schreibeTodos(todos) {
     });
 }
 
-// Fügen Sie eine neue Route hinzu, um den GitHub-Token abzurufen
-app.get('/github-token', (req, res) => {
-console.log('GitHub-Token:', process.env.GITHUB_TOKEN);
-
-    res.json({ githubToken: process.env.GITHUB_TOKEN });
-});
-
-
 // Route zum Abrufen aller To-Dos
 app.get('/todos', async (req, res) => {
     try {
         const todos = await leseTodos();
         res.json(todos);
     } catch (err) {
-        console.error('Fehler beim Lesen der To-Dos:', err);
-        res.status(500).json({ error: 'Fehler beim Lesen der To-Dos' });
+        res.status(500).send('Fehler beim Lesen der To-Dos');
     }
 });
 
@@ -142,45 +148,24 @@ app.get('/todos', async (req, res) => {
 app.post('/todos', async (req, res) => {
     try {
         const todos = await leseTodos();
-        const newTodo = { id: todos.length, text: req.body.text }; // Füge eine eindeutige ID hinzu
-        todos.push(newTodo);
+        todos.push(req.body); // req.body enthält das neue To-Do
         await schreibeTodos(todos);
-
-        // Führe Git-Commit und Push zum GitHub-Repository aus
-        exec(`git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push https://${githubToken}@github.com/BiancaAH/test.git`, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Fehler beim Git-Commit und Push:', error);
-                res.status(500).send('Fehler beim Git-Commit und Push');
-            } else {
-                res.status(201).send('To-Do hinzugefügt und Git-Commit und Push zum GitHub-Repository erfolgreich');
-            }
-        });
+        res.status(201).send('To-Do hinzugefügt');
     } catch (err) {
         res.status(500).send('Fehler beim Hinzufügen des To-Dos');
     }
 });
 
-// Route zum Löschen eines To-Dos anhand seiner ID
+// Route zum Löschen eines To-Dos
 app.delete('/todos/:id', async (req, res) => {
     try {
-        const todos = await leseTodos();
-        const idToDelete = parseInt(req.params.id);
-        if (!isNaN(idToDelete)) {
-            const updatedTodos = todos.filter(todo => todo.id !== idToDelete);
-            await schreibeTodos(updatedTodos);
-            res.send('To-Do gelöscht');
-        } else {
-            res.status(400).send('Ungültige ID');
-        }
+        let todos = await leseTodos();
+        todos = todos.filter(todo => todo.id !== req.params.id);
+        await schreibeTodos(todos);
+        res.send('To-Do gelöscht');
     } catch (err) {
         res.status(500).send('Fehler beim Löschen des To-Dos');
     }
-});
-
-
-// Fallback-Route (Standardroute) für nicht definierte Pfade
-app.get('*', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
 });
 
 // Starten des Servers
