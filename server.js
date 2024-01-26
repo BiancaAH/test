@@ -8,6 +8,7 @@ const axios = require('axios');
 const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To-Do-Liste
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
+const githubRepoURL = 'https://github.com/BiancaAH/test.git';
 
 const { exec } = require('child_process');
 
