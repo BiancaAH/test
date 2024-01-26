@@ -9,6 +9,8 @@ const fs = require('fs'); // Neu hinzugefügtes Modul für die Verwaltung der To
 const ARTIKEL_FALSE = 'F'; // Definition der Konstante
 const SUCHTYP_ANFANGSSUCHE = 'anfangssuche';
 const githubRepoURL = 'https://github.com/BiancaAH/test.git';
+const githubToken = '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'; // Hier den GitHub-Token einfügen
+
 
 const { exec } = require('child_process');
 
@@ -117,6 +119,12 @@ function schreibeTodos(todos) {
     });
 }
 
+// Fügen Sie eine neue Route hinzu, um den GitHub-Token abzurufen
+app.get('/github-token', (req, res) => {
+    res.json({ githubToken: process.env.GITHUB_TOKEN });
+});
+
+
 // Route zum Abrufen aller To-Dos
 app.get('/todos', async (req, res) => {
     try {
@@ -136,20 +144,19 @@ app.post('/todos', async (req, res) => {
         todos.push(newTodo);
         await schreibeTodos(todos);
 
-        // Führe Git-Commit und Push aus
-        exec('git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push', (error, stdout, stderr) => {
+        // Führe Git-Commit und Push zum GitHub-Repository aus
+        exec(`git add . && git commit -m "Hinzufügen eines neuen To-Dos" && git push ${githubRepoURL}`, (error, stdout, stderr) => {
             if (error) {
                 console.error('Fehler beim Git-Commit und Push:', error);
                 res.status(500).send('Fehler beim Git-Commit und Push');
             } else {
-                res.status(201).send('To-Do hinzugefügt und Git-Commit und Push erfolgreich');
+                res.status(201).send('To-Do hinzugefügt und Git-Commit und Push zum GitHub-Repository erfolgreich');
             }
         });
     } catch (err) {
         res.status(500).send('Fehler beim Hinzufügen des To-Dos');
     }
 });
-
 
 // Route zum Löschen eines To-Dos anhand seiner ID
 app.delete('/todos/:id', async (req, res) => {

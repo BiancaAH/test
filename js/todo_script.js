@@ -1,6 +1,20 @@
+// In Ihrer Frontend-JavaScript-Datei können Sie den Token abrufen, indem Sie eine Anfrage an Ihren Server stellen
 document.addEventListener("DOMContentLoaded", function() {
+    fetch('/github-token') // Hier wird eine neue Route verwendet, um den Token abzurufen
+        .then(response => response.json())
+        .then(data => {
+            const githubToken = data.githubToken;
+            // Verwenden Sie den Token hier in Ihren Anfragen an GitHub
+        })
+        .catch(error => {
+            console.error('Fehler beim Abrufen des GitHub-Tokens:', error);
+        });
+
     todosLaden();
 });
+
+// ...
+
 
 function todosLaden() {
     fetch('/todos')
