@@ -3,7 +3,7 @@ const https = require('https');
 const cors = require('cors');
 const axios = require('axios');
 const fs = require('fs');
-const { MongoClient } = require('mongodb');
+const path = require('path');
 
 const app = express();
 const port = 8080;
@@ -16,21 +16,27 @@ app.use(express.static('public'));
 app.use('/js', express.static(__dirname + '/js'));
 app.use(express.json());
 
-// MongoDB-Verbindung herstellen
-const mongoURI =
-  'mongodb+srv://doadmin:b0X1q9G7345tZ2rV@db-mongodb-nyc3-48965-d36c7ff1.mongo.ondigitalocean.com/admin?tls=true&authSource=admin';
+const JSON_FILE_PATH = path.join(__dirname, 'public', 'todos.json');
 
-async function connectToMongoDB() {
+// Funktion zum Abrufen aller To-Dos aus der JSON-Datei
+function readTodosFromFile() {
   try {
-    const client = await MongoClient.connect(mongoURI);
-    console.log('MongoDB verbunden');
-    return client;
+    const data = fs.readFileSync(JSON_FILE_PATH, 'utf-8');
+    return JSON.parse(data);
   } catch (err) {
-    console.error('Fehler beim Verbinden mit MongoDB:', err);
-    throw err;
+    console.error('Fehler beim Lesen der JSON-Datei:', err);
+    return [];
   }
 }
 
+// Funktion zum Speichern aller To-Dos in die JSON-Datei
+function writeTodosToFile(todos) {
+  try {
+    fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(todos, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Fehler beim Schreiben in die JSON-Datei:', err);
+  }
+}
 
 // GET-Route für die Startseite
 app.get('/', (req, res) => {
@@ -80,9 +86,9 @@ app.get('/article/:artNr', async (req, res) => {
   try {
     const result = await axios.post(apiUrl, xmlRequest, {
       headers: {
-        'Accept': 'application/xml',
+        Accept: 'application/xml',
         'Content-Type': 'application/xml',
-        'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+        Authorization: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
       },
       httpsAgent: agent,
     });
@@ -97,71 +103,43 @@ app.get('/article/:artNr', async (req, res) => {
 
 // To-Do-Liste Routen
 
-// Route zum Abrufen aller To-Dos aus der MongoDB
-app.get('/todos', async (req, res) => {
-  try {
-    const client = await connectToMongoDB();
-    const db = client.db('Zahlungsvereinbarungen');
-    const collection = db.collection('DB');
-    const todos = await collection.find({}).toArray();
-    res.json(todos);
-    await client.close();
-  } catch (err) {
-    console.error('Fehler beim Lesen der To-Dos aus der MongoDB:', err);
-    res.status(500).json({ error: 'Fehler beim Lesen der To-Dos' });
-  }
+// Route zum Abrufen aller To-Dos aus der JSON-Datei
+app.get('/todos', (req, res) => {
+  const todos = readTodosFromFile();
+  res.json(todos);
 });
 
-// Route zum Hinzufügen eines neuen To-Dos in die MongoDB
-app.post('/todos', async (req, res) => {
+// Route zum Hinzufügen eines neuen To-Dos in die JSON-Datei
+app.post('/todos', (req, res) => {
   const aufgabeText = req.body.text;
-  try {
-    const client = await connectToMongoDB();
-    const db = client.db('Zahlungsvereinbarungen');
-    const collection = db.collection('DB');
-    await collection.insertOne({ text: aufgabeText });
-    res.status(201).send('To-Do hinzugefügt');
-    await client.close();
-  } catch (err) {
-    console.error('Fehler beim Hinzufügen des To-Dos in die MongoDB:', err);
-    res.status(500).send('Fehler beim Hinzufügen des To-Dos');
-  }
+  const todos = readTodosFromFile();
+  const newTodo = { id: Date.now().toString(), text: aufgabeText };
+  todos.push(newTodo);
+  writeTodosToFile(todos);
+  res.status(201).json(newTodo);
 });
 
-// Route zum Löschen eines To-Dos aus der MongoDB anhand seiner ID
-app.delete('/todos/:id', async (req, res) => {
+// Route zum Löschen eines To-Dos aus der JSON-Datei anhand seiner ID
+app.delete('/todos/:id', (req, res) => {
   const todoId = req.params.id;
-  try {
-    const client = await connectToMongoDB();
-    const db = client.db('Zahlungsvereinbarungen');
-    const collection = db.collection('DB');
+  let todos = readTodosFromFile();
+  const initialLength = todos.length;
+  todos = todos.filter(todo => todo.id !== todoId);
 
-    // Require the ObjectId class and create a new ObjectId
-    const { ObjectId } = require('mongodb');
-    const objectId = new ObjectId(todoId);
-
-    const result = await collection.deleteOne({ _id: objectId });
-
-    if (result.deletedCount === 1) {
-      res.send('To-Do gelöscht');
-    } else {
-      res.status(404).send('To-Do nicht gefunden');
-    }
-
-    await client.close();
-  } catch (err) {
-    console.error('Fehler beim Löschen des To-Dos aus der MongoDB:', err);
-    res.status(500).send('Fehler beim Löschen des To-Dos: ' + err.message);
+  if (todos.length === initialLength) {
+    return res.status(404).send('To-Do nicht gefunden');
   }
+
+  writeTodosToFile(todos);
+  res.send('To-Do gelöscht');
 });
 
-
-
-
+// Standardroute für nicht definierte Routen
 app.get('*', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+// Server starten
 app.listen(port, () => {
   console.log(`Server läuft auf Port ${port}`);
 });
