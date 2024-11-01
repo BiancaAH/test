@@ -22,9 +22,10 @@ const JSON_FILE_PATH = path.join(__dirname, 'public', 'todos.json');
 function readTodosFromFile() {
   try {
     const data = fs.readFileSync(JSON_FILE_PATH, 'utf-8');
+    console.log("Daten erfolgreich aus JSON-Datei gelesen.");
     return JSON.parse(data);
   } catch (err) {
-    console.error('Fehler beim Lesen der JSON-Datei:', err);
+    console.error('Fehler beim Lesen der JSON-Datei:', err.message);
     return [];
   }
 }
@@ -33,19 +34,30 @@ function readTodosFromFile() {
 function writeTodosToFile(todos) {
   try {
     fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(todos, null, 2), 'utf-8');
+    console.log("Daten erfolgreich in JSON-Datei geschrieben.");
   } catch (err) {
-    console.error('Fehler beim Schreiben in die JSON-Datei:', err);
+    console.error('Fehler beim Schreiben in die JSON-Datei:', err.message);
   }
 }
 
 // GET-Route für die Startseite
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+    if (err) {
+      console.error("Fehler beim Senden der Startseite:", err.message);
+      res.status(500).send('Fehler beim Laden der Startseite');
+    }
+  });
 });
 
 // GET-Route für die Anmeldeseite
 app.get('/anmelden', (req, res) => {
-  res.sendFile(__dirname + '/public/anmelden.html');
+  res.sendFile(path.join(__dirname, 'public', 'anmelden.html'), (err) => {
+    if (err) {
+      console.error("Fehler beim Senden der Anmeldeseite:", err.message);
+      res.status(500).send('Fehler beim Laden der Anmeldeseite');
+    }
+  });
 });
 
 // GET-Route für Artikelabfragen
@@ -93,11 +105,11 @@ app.get('/article/:artNr', async (req, res) => {
       httpsAgent: agent,
     });
 
-    console.log(result.data);
+    console.log("Artikelanfrage erfolgreich:", result.data);
     res.send(result.data || '');
   } catch (error) {
-    console.error(error);
-    res.status(500).send(error.message);
+    console.error("Fehler bei der Artikelanfrage:", error.message);
+    res.status(500).send('Fehler bei der Artikelanfrage: ' + error.message);
   }
 });
 
@@ -105,38 +117,69 @@ app.get('/article/:artNr', async (req, res) => {
 
 // Route zum Abrufen aller To-Dos aus der JSON-Datei
 app.get('/todos', (req, res) => {
-  const todos = readTodosFromFile();
-  res.json(todos);
+  try {
+    const todos = readTodosFromFile();
+    res.json(todos);
+  } catch (error) {
+    console.error("Fehler beim Abrufen der To-Dos:", error.message);
+    res.status(500).json({ error: 'Fehler beim Abrufen der To-Dos' });
+  }
 });
 
 // Route zum Hinzufügen eines neuen To-Dos in die JSON-Datei
 app.post('/todos', (req, res) => {
   const aufgabeText = req.body.text;
-  const todos = readTodosFromFile();
-  const newTodo = { id: Date.now().toString(), text: aufgabeText };
-  todos.push(newTodo);
-  writeTodosToFile(todos);
-  res.status(201).json(newTodo);
+  if (!aufgabeText) {
+    console.error("Ungültige Anfrage: 'text' fehlt");
+    return res.status(400).send("Fehler: 'text'-Feld ist erforderlich");
+  }
+  
+  try {
+    const todos = readTodosFromFile();
+    const newTodo = { id: Date.now().toString(), text: aufgabeText };
+    todos.push(newTodo);
+    writeTodosToFile(todos);
+    res.status(201).json(newTodo);
+  } catch (error) {
+    console.error("Fehler beim Hinzufügen eines neuen To-Dos:", error.message);
+    res.status(500).send("Fehler beim Hinzufügen eines neuen To-Dos");
+  }
 });
 
 // Route zum Löschen eines To-Dos aus der JSON-Datei anhand seiner ID
 app.delete('/todos/:id', (req, res) => {
   const todoId = req.params.id;
-  let todos = readTodosFromFile();
-  const initialLength = todos.length;
-  todos = todos.filter(todo => todo.id !== todoId);
-
-  if (todos.length === initialLength) {
-    return res.status(404).send('To-Do nicht gefunden');
+  if (!todoId) {
+    console.error("Ungültige Anfrage: 'id' fehlt");
+    return res.status(400).send("Fehler: 'id'-Parameter ist erforderlich");
   }
 
-  writeTodosToFile(todos);
-  res.send('To-Do gelöscht');
+  try {
+    let todos = readTodosFromFile();
+    const initialLength = todos.length;
+    todos = todos.filter(todo => todo.id !== todoId);
+
+    if (todos.length === initialLength) {
+      console.warn("To-Do nicht gefunden:", todoId);
+      return res.status(404).send('To-Do nicht gefunden');
+    }
+
+    writeTodosToFile(todos);
+    res.send('To-Do gelöscht');
+  } catch (error) {
+    console.error("Fehler beim Löschen des To-Dos:", error.message);
+    res.status(500).send('Fehler beim Löschen des To-Dos: ' + error.message);
+  }
 });
 
 // Standardroute für nicht definierte Routen
 app.get('*', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+    if (err) {
+      console.error("Fehler beim Senden der Startseite:", err.message);
+      res.status(500).send('Fehler beim Laden der Seite');
+    }
+  });
 });
 
 // Server starten
