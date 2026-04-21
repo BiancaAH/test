@@ -69,8 +69,8 @@ app.get('/article/:artNr', async (req, res) => {
     rejectUnauthorized: false,
   });
 
-  const username = 'office@jimmysbox.at';
-  const password = '123456789';
+  const username = '3319';
+  const password = 'A123456789';
 
   const xmlRequest = `
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
